@@ -22,7 +22,7 @@ When it's your turn, you have 2 choices:
 
 If you draw a card and it is playable, you will be able to choose wheter to play it, or to keep it.
 If you want want to leave a game, just use the command \`/leave\`. It doesn't matter if you are the creator of the game.` },
-                    { name: "Other", value: "You can find out more about Uno and its rules [here](https://en.wikipedia.org/wiki/Uno_(card_game)" }
+                    { name: "Other", value: "You can find out more about Uno and its rules [here](https://en.wikipedia.org/wiki/Uno_(card_game\))" }
                 ],
                 footer: { text: interaction.user.tag, iconURL: interaction.user.avatarURL({ dynamic: true }) },
                 timestamp: Date.now(),
