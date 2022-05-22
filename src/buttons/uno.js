@@ -2,7 +2,6 @@ const { MessageEmbed, MessageActionRow } = require("discord.js");
 
 module.exports = async (interaction, client) => {
     const button = interaction.component;
-
     const game = client.games.find(g => g.channel == interaction.channel);
 
     if (!game) {
