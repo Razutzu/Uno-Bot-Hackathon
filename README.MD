@@ -11,7 +11,7 @@ To invite the bot use [this link](https://discord.com/api/oauth2/authorize?clien
 - `/leave` - Leaves a game.
 - `/play` - Plays a card.
 - `/start` - Starts a game.
-# Buttons overview
+# Buttons overview 🔘
 - **💥 Uno!** - Calls "Uno!".
 - **✅ Play!** - Plays a card when you drew a playable card.
 - **❌ Keep!** - Keeps a card when you drew a playable card.
