@@ -76,8 +76,6 @@ module.exports = (interaction, client) => {
 
     const cardArray = card.split(" ");
 
-    console.log(cardArray.slice(1).join(" "));
-
     if (cardArray.slice(1).join(" ") == "Wild Draw Four") game.wildDrawFourCard(interaction, player, color);
     else if (cardArray[1] == "Wild") game.wildCard(interaction, player, color);
     else if (cardArray.slice(1).join(" ") == "Draw Two") game.drawTwoCard(interaction, player, card);

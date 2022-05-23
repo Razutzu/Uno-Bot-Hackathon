@@ -12,7 +12,7 @@ class Game {
         this.cards = this.refillDeck();
         this.normalCards = this.cards.filter(c => !isNaN(c[c.length - 1])); // Normal cards
 
-        this.decks = 1;
+        this.decks = 0;
 
         this.users = [interaction.user] // All users JOINED
         this.players = []; // All users IN GAME
@@ -134,9 +134,9 @@ class Game {
     userLeave(interaction) {
         this.users.splice(this.users.indexOf(interaction.user), 1);
 
-        if (this.users.length == 0) {
-            return this.endGame(interaction);
-        }
+        if (this.users.length == 0) return this.endGame(interaction);
+
+        if (this.creator == interaction.user.id) this.creator = this.users[0].id;
 
         const player = this.players.find(p => p.user == interaction.user);
 
@@ -148,9 +148,17 @@ class Game {
         })
 
         if (player) {
+            if (this.players.length == 2) {
+                this.players.splice(this.players.indexOf(player), 1);
+
+                const winner = this.players[0];
+
+                return this.endMatch(interaction, winner);
+            }
+
             embed.setColor(this.currentColor.toUpperCase());
 
-            if (this.currentTurn == this.players.indexOf(player)) this.changeTurn(interaction, `${interaction.user.toString()} left the game!`, false);
+            if (this.currentTurn == this.players.indexOf(player)) this.changeTurn(interaction, `${interaction.user.toString()} left the game!`, 0);
             else interaction.reply({ embeds: [embed] }).catch(err => { });
 
             this.currentTurn--;
@@ -159,11 +167,10 @@ class Game {
         } else {
             interaction.reply({ embeds: [embed] }).catch(err => { });
         }
-        if (this.creator == interaction.user.id) this.creator = this.users[0].id;
     }
     changeTurn(interaction, msg, skip) {
         if (this.cards.length <= 0) {
-            this.refillDeck();
+            this.cards = this.refillDeck();
         }
 
         if (this.players[this.currentTurn].drawing !== null) this.players[this.currentTurn].drawing = null;
@@ -174,7 +181,7 @@ class Game {
 
         this.currentCardImage = this.cardImage(this.currentCard);
 
-        if (this.players.length > 2 || this.players.length == 2 && skip) {
+        if (this.players.length > 2 || (this.players.length == 2 && skip == 0)) {
             if ((this.currentTurn + 1 + skip) >= this.players.length) this.currentTurn = 0 + skip;
             else this.currentTurn += 1 + skip;
         }
@@ -200,7 +207,7 @@ class Game {
         this.cards.splice(this.cards.indexOf(card), 1);
         player.cards.push(card);
 
-        if (!this.playableCard(card)) return this.changeTurn(interaction, `${player.user.toString()} drew a card.\n\nThe last card played was a **${this.currentCard}** card.`, false);
+        if (!this.playableCard(card)) return this.changeTurn(interaction, `${player.user.toString()} drew a card.\n\nThe last card played was a **${this.currentCard}** card.`, 0);
 
         let color;
         let colors = ["Red", "Yellow", "Blue", "Green"];
@@ -250,7 +257,7 @@ class Game {
         this.currentCard = card;
         this.currentColor = card.split(" ")[0];
 
-        this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.`, false);
+        this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.`, 0);
     }
     skipCard(interaction, player, card) {
         player.cards.splice(player.cards.indexOf(card), 1);
@@ -263,7 +270,7 @@ class Game {
         if ((this.currentTurn + 1) == this.players.length) skippedPlayer = this.players[0];
         else skippedPlayer = this.players[this.currentTurn + 1];
 
-        this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.\n\n${skippedPlayer.user.toString()} has been skipped.`, true);
+        this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.\n\n${skippedPlayer.user.toString()} has been skipped.`, 1);
     }
     reverseCard(interaction, player, card) {
         player.cards.splice(player.cards.indexOf(card), 1);
@@ -276,9 +283,9 @@ class Game {
 
             this.currentTurn = this.players.indexOf(player);
 
-            this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.`, false);
+            this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.`, 0);
         } else {
-            this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.`, false);
+            this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.`, 0);
         }
     }
     drawTwoCard(interaction, player, card) {
@@ -300,7 +307,7 @@ class Game {
 
         const drawingMessage = this.drawingMessages[Math.floor(Math.random() * this.drawingMessages.length)];
 
-        this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.\n\n${playerToGive.user.toString()} ${drawingMessage} 2 cards.`, true);
+        this.changeTurn(interaction, `${player.user.toString()} played a **${card}** card.\n\n${playerToGive.user.toString()} ${drawingMessage} 2 cards.`, 1);
     }
     wildCard(interaction, player, color) {
         player.cards.splice(player.cards.indexOf("Wild"), 1);
@@ -308,7 +315,7 @@ class Game {
         this.currentCard = "Wild";
         this.currentColor = color;
 
-        this.changeTurn(interaction, `${player.user.toString()} played a **Wild** card and changed the color to **${color}**.`, false);
+        this.changeTurn(interaction, `${player.user.toString()} played a **Wild** card and changed the color to **${color}**.`, 0);
     }
     wildDrawFourCard(interaction, player, color) {
         player.cards.splice(player.cards.indexOf("Wild Draw Four"), 1);
@@ -329,7 +336,7 @@ class Game {
 
         const drawingMessage = this.drawingMessages[Math.floor(Math.random() * this.drawingMessages.length)];
 
-        this.changeTurn(interaction, `${player.user.toString()} played a **Wild Draw Four** card and changed the color to **${color}**.\n\n${playerToGive.user.toString()} ${drawingMessage} 4 cards.`, true);
+        this.changeTurn(interaction, `${player.user.toString()} played a **Wild Draw Four** card and changed the color to **${color}**.\n\n${playerToGive.user.toString()} ${drawingMessage} 4 cards.`, 1);
     }
     cardImage(card) {
         if (card == "Wild" || card == "Wild Draw Four") return `${this.currentColor}${card.split(" ").join("")}.png`;

@@ -70,5 +70,5 @@ module.exports = (interaction, client) => {
         }).catch(err => { });
     }
 
-    game.changeTurn(interaction, `${player.user.toString()} drew a card.\n\nThe last card played was a **${game.currentCard}** card.`, false)
+    game.changeTurn(interaction, `${player.user.toString()} drew a card.\n\nThe last card played was a **${game.currentCard}** card.`, 0)
 }
